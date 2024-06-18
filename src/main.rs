@@ -1,3 +1,9 @@
+use anyhow::{Context, Result};
+use chrono::Local;
+use clap::{Arg, Command};
+use csv::Writer;
+use log::{error, info};
+use signal_hook::{consts::SIGINT, consts::SIGTERM, iterator::Signals};
 use std::{
     fs::File,
     io::BufWriter,
@@ -6,12 +12,6 @@ use std::{
     thread,
     time::{Duration, Instant},
 };
-use anyhow::{Context, Result};
-use chrono::Local;
-use clap::{Arg, Command};
-use csv::Writer;
-use log::{error, info};
-use signal_hook::{consts::SIGINT, consts::SIGTERM, iterator::Signals};
 use sysinfo::{ProcessExt, System, SystemExt};
 
 struct ProcessLogger {
@@ -34,7 +34,13 @@ impl ProcessLogger {
     fn write_header(&mut self) -> Result<()> {
         info!("Writing CSV header...");
         self.writer
-            .write_record(&["Timestamp", "PID", "Process Name", "CPU Usage (%)", "Memory Usage (%)"])
+            .write_record([
+                "Timestamp",
+                "PID",
+                "Process Name",
+                "CPU Usage (%)",
+                "Memory Usage (%)",
+            ])
             .context("Failed to write header")?;
         self.writer.flush().context("Failed to flush writer!")?;
         info!("CSV header written successfully!");
@@ -51,7 +57,7 @@ impl ProcessLogger {
             let memory_usage = process.memory() as f64 / self.system.total_memory() as f64 * 100.0;
 
             self.writer
-                .write_record(&[
+                .write_record([
                     timestamp.as_str(),
                     &pid.to_string(),
                     name,
@@ -91,7 +97,7 @@ impl Config {
 
     fn parse_args() -> clap::ArgMatches {
         Command::new("Process Logger")
-            .version("1.0.0")
+            .version("1.0.1")
             .author("Jacob Coleman <jacob.wade.coleman@gmail.com>")
             .about("Writes process CPU and memory usage to a CSV file")
             .arg(
@@ -129,7 +135,10 @@ fn main() -> Result<()> {
 
     let matches = Config::parse_args();
     let config = Config::from_args(&matches)?;
-    info!("Starting process logger with interval: {}s, output: {}, duration: {}s", config.interval, config.output, config.duration);
+    info!(
+        "Starting process logger with interval: {}s, output: {}, duration: {}s",
+        config.interval, config.output, config.duration
+    );
 
     let mut logger = ProcessLogger::new(&config.output)?;
     logger.write_header()?;
@@ -137,7 +146,7 @@ fn main() -> Result<()> {
     let running = Arc::new(AtomicBool::new(true));
     let r = running.clone();
 
-    let mut signals = Signals::new(&[SIGINT, SIGTERM])?;
+    let mut signals = Signals::new([SIGINT, SIGTERM])?;
     thread::spawn(move || {
         for _ in signals.forever() {
             info!("Received termination signal, stopping...");
@@ -145,11 +154,20 @@ fn main() -> Result<()> {
         }
     });
 
-    info!("Writing process information every {} second(s) for {} second(s)...", config.interval, config.duration);
+    info!(
+        "Writing process information every {} second(s) for {} second(s)...",
+        config.interval, config.duration
+    );
 
     let start_time = Instant::now();
 
-    let result = run_logging_loop(&mut logger, &running, config.interval, config.duration, start_time);
+    let result = run_logging_loop(
+        &mut logger,
+        &running,
+        config.interval,
+        config.duration,
+        start_time,
+    );
 
     match result {
         Ok(_) => info!("Process information gathered!"),
@@ -176,9 +194,9 @@ fn run_logging_loop(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::NamedTempFile;
     use std::fs::File;
-    use std::io::{BufReader, BufRead};
+    use std::io::{BufRead, BufReader};
+    use tempfile::NamedTempFile;
 
     #[test]
     fn test_process_logger_creation() {
@@ -200,8 +218,15 @@ mod tests {
 
         let file = File::open(file_path).expect("Failed to open temp file");
         let reader = BufReader::new(file);
-        let header = reader.lines().next().expect("No header found").expect("Failed to read header");
-        assert_eq!(header, "Timestamp,PID,Process Name,CPU Usage (%),Memory Usage (%)");
+        let header = reader
+            .lines()
+            .next()
+            .expect("No header found")
+            .expect("Failed to read header");
+        assert_eq!(
+            header,
+            "Timestamp,PID,Process Name,CPU Usage (%),Memory Usage (%)"
+        );
     }
 
     #[test]
@@ -217,7 +242,10 @@ mod tests {
 
         let file = File::open(file_path).expect("Failed to open temp file");
         let reader = BufReader::new(file);
-        let lines: Vec<String> = reader.lines().map(|line| line.expect("Failed to read line")).collect();
+        let lines: Vec<String> = reader
+            .lines()
+            .map(|line| line.expect("Failed to read line"))
+            .collect();
         assert!(lines.len() > 1, "No process data logged");
     }
 
@@ -225,9 +253,12 @@ mod tests {
     fn test_config_from_args() {
         let args = vec![
             "process_logger",
-            "--interval", "2",
-            "--output", "test_output.csv",
-            "--duration", "120",
+            "--interval",
+            "2",
+            "--output",
+            "test_output.csv",
+            "--duration",
+            "120",
         ];
         let matches = Command::new("Process Logger")
             .version("1.0.0")

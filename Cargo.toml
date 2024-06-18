@@ -1,6 +1,6 @@
 [package]
 name = "chronologger"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Jacob Coleman <jacob.wade.coleman@gmail.com>"]
 edition = "2021"
 description = "Writes process CPU and memory usage to a CSV file"
