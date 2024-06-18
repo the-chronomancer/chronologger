@@ -34,7 +34,7 @@ ChronoLogger is a Rust command-line tool designed to log CPU and memory usage of
 ## Requirements
 
 - Rust 1.79+
-- 
+
 ## Installation
 
 1. Ensure Rust 1.56 or higher is installed on your system.
