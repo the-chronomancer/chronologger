@@ -1,0 +1,23 @@
+[package]
+name = "chronologger"
+version = "1.0.0"
+authors = ["Jacob Coleman <jacob.wade.coleman@gmail.com>"]
+edition = "2021"
+description = "Writes process CPU and memory usage to a CSV file"
+license = "MIT"
+repository = "https://github.com/the-chronomancer/chronologger"
+homepage = "https://github.com/the-chronomancer/chronologger"
+readme = "README.md"
+keywords = ["process", "logging", "csv", "sysinfo"]
+categories = ["command-line-utilities", "system"]
+
+[dependencies]
+anyhow = "1.0"
+chrono = "0.4"
+clap = { version = "4.5", features = ["derive"] }
+csv = "1.1"
+env_logger = "0.9"
+log = "0.4"
+signal-hook = "0.3"
+sysinfo = "0.23"
+tempfile = "3.2"
