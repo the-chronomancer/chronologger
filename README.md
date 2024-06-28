@@ -17,12 +17,13 @@
   - [Default Parameters](#default-parameters)
   - [Custom Interval and Output File](#custom-interval-and-output-file)
   - [Short Duration](#short-duration)
+- [Tests](#tests)
 - [License](#license)
 - [Contact](#contact)
 
 ## Overview
 
-ChronoLogger is a Rust command-line tool designed to log CPU and memory usage of processes to a CSV file at regular intervals.
+ChronoLogger is a Rust command-line tool designed to log CPU and memory usage of processes to a CSV file at regular intervals. It provides detailed logging and handles termination signals gracefully.
 
 ## Features
 
@@ -30,6 +31,7 @@ ChronoLogger is a Rust command-line tool designed to log CPU and memory usage of
 - **Configurable Interval**: Set the logging interval in seconds.
 - **Configurable Duration**: Set the maximum duration to run the logger.
 - **Signal Handling**: Gracefully handles termination signals (SIGINT, SIGTERM).
+- **Verbose Logging**: Provides detailed logging for better traceability and debugging.
 
 ## Requirements
 
@@ -80,6 +82,17 @@ Write process information for 10 seconds.
 chronologger --duration 10
 ```
 
+## Tests
+
+ChronoLogger includes a suite of tests to ensure its functionality. The tests cover the creation of the `ProcessLogger`, writing headers to the CSV file, logging processes, and parsing command-line arguments.
+
+### Running Tests
+
+To run the tests, use the following command:
+```bash
+cargo test
+```
+
 ## License
 
 This software is released under the MIT License.
@@ -87,4 +100,3 @@ This software is released under the MIT License.
 ## Contact
 
 For support or contributions, please contact [Jacob Coleman](mailto:jacob.wade.coleman@gmail.com).
-```
